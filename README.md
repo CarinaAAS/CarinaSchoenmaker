@@ -65,6 +65,8 @@ References:
 [13] Drosophila chromosomal diversity loss http://link.springer.com/article/10.1023%2FA%3A1006546616462?LI=true
 
 
+[14] Global variation in diversification rates of flowering plants: energy vs. climate change http://onlinelibrary.wiley.com/wol1/doi/10.1111/j.1461-0248.2007.01138.x/abstract 
+
 
 DATA: 
 temperature from 1850 http://www.cru.uea.ac.uk/data 
