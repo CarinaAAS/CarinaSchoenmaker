@@ -13,6 +13,9 @@ Interesting ecological variables:
 - habitat (loss) [3]
 - Climate change: involving CO2-equivalence greenhouse gasses, temperature, changing environment, water, humidity, sea level, composition of the atmosphere [7] [9]
 
+Global warming and its effect on evolution. 
+
+
 Climate change concerns many different aspects, such as the ones listed above. Furthermore, these aspects all have concequences that may lead to variation of genomes, for example; temperature change may lead to shifts of groups of animals which leads to different species interactions.  [8]
 
 Effect of climate change on evolution: 
@@ -59,5 +62,10 @@ References:
 
 [12]   Erosion of lizard diversity by climate change and altered thermal niches - Sinervo, B. et al. Science 328, 894–899 (2010)
 
+[13] Drosophila chromosomal diversity loss http://link.springer.com/article/10.1023%2FA%3A1006546616462?LI=true
 
+
+
+DATA: 
+temperature from 1850 http://www.cru.uea.ac.uk/data 
 
