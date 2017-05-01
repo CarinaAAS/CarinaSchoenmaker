@@ -6,7 +6,7 @@ Interesting ecological variables:
 
 - species interactions [5]
 - temperature [1]
-- body size [4]
+- body size [4] Lineage Diversification Rate [15]
 - binary characters such as birth/death [2]
 - sexual system
 - dispersal ability 
@@ -66,6 +66,8 @@ References:
 
 
 [14] Global variation in diversification rates of flowering plants: energy vs. climate change http://onlinelibrary.wiley.com/wol1/doi/10.1111/j.1461-0248.2007.01138.x/abstract 
+
+[15] https://academic.oup.com/sysbio/article/57/1/116/1696787/The-Relative-Importance-of-Body-Size-and 
 
 
 DATA: 
