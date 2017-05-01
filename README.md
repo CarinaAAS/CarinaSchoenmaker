@@ -7,7 +7,7 @@ Interesting ecological variables:
 - species interactions [5]
 - temperature [1]
 - body size [4] Lineage Diversification Rate [15]
-- binary characters such as birth/death [2]
+- binary characters such as birth/death [2] 
 - sexual system
 - dispersal ability 
 - habitat (loss) [3]
@@ -40,7 +40,7 @@ References:
 
 [1] Estimating diversification rates from phylogenetic information - Robert E. Ricklefs 
 
-[2] Estimating a binary character's effect on speciation and extinction - Wayne P. Maddison et al  
+[2] Estimating a binary character's effect on speciation and extinction - Wayne P. Maddison et al  http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.449.8170&rep=rep1&type=pdf
 
 [3] Functional and phylogenetic structure of island bird communities - Xingfeng Si et al
 
