@@ -1,0 +1,114 @@
+install.packages("devtools")
+devtools::install_github("franciscorichter/dmea")
+
+library(dmea)
+
+rm(list = ls())
+
+  ct=5
+sumt_r = 0
+sumt_y = 0
+model = 'bt'
+beta_r = 0.5  #dependency parameter of predators
+mu_r = 0.2
+
+lambda_y = 0.5
+gamma_y = 0.2 #dependency parameter of prey
+
+
+x_r = 1 # nr. of predators
+x_y = 1  # nr. of prey
+
+WT_r = c()
+SE_r = c()
+BT_r = c()
+WT_y = c()
+SE_y = c()
+BT_y = c()
+
+ ###############predators###################
+
+while(sumt_r < ct){
+  #update parameter
+  if(model == 'bt'){
+    lambda_r = beta_r * x_y
+    
+  }
+
+   s_r = lambda_r*x_r + mu_r*x_r
+  wt_r = rexp(n = 1,rate = s_r)
+  
+  BD_r= rmultinom(1,1,c(rep(lambda_r,x_r),rep(mu_r,x_r))/s_r)
+  L_r = which(BD_r == 1)
+  
+  # if speciation of predators (x_r)
+  # find out where the 1 in rmultinom occurs, so where does the event occur before/on N (speciation) or after (extinction)
+  if(L_r<=x_r){
+    
+    # update tree  T, tau... 
+    x_r= x_r+1
+    SE_r = append(SE_r,1)
+  }
+  #else (if extinction of predators (x_r))
+  if (L_r>x_r) {
+    
+    # update
+    x_r = x_r-1           
+    SE_r = append(SE_r,0)
+  }
+  WT_r = append(WT_r,wt_r)
+  sumt_r = sum(WT_r)
+  BT_r =  append(BT_r, sumt_r) 
+}
+  ###############prey###################
+
+  while(sumt_y < ct){
+    #update parameter
+    if(model == 'bt'){
+    mu_y = gamma_y * x_r  
+    }
+    s_y = lambda_y*x_y + mu_y*x_y
+    wt_y = rexp(n = 1,rate = s_y)
+    
+    BD_y = rmultinom(1,1,c(rep(lambda_y,x_y),rep(mu_y,x_y))/s_y)
+    L_y = which(BD_y == 1)
+    
+    # if speciation of prey (x_y)
+    # find out where the 1 in rmultinom occurs, so where does the event occur before/on N (speciation) or after (extinction)
+    if(L_y<=x_y){
+      
+      # update tree  T, tau... 
+      x_y= x_y+1
+      SE_y = append(SE_y,1)
+    }
+    #else (if extinction of prey (x_y))
+    if (L_y>x_y) {
+      
+      # update
+      x_y = x_y - 1           
+      SE_y = append(SE_y,0)
+      
+    }
+    WT_y = append(WT_y,wt_y)
+  sumt_y = sum(WT_y)
+  BT_y =  append(BT_y, sumt_y)
+  }
+
+
+#if (N == 0) {
+#   reboot = reboot + 1
+#  N=1
+# WT = c()
+# SE = c()
+# BT = c()
+  # }
+
+p_r = list(wt=WT_r,E=SE_r)
+p2_r = p2phylo(p_r)
+plot(p2_r)
+axisPhylo(backward = F)
+
+p_y = list(wt=WT_y,E=SE_y)
+p2_y = p2phylo(p_y)
+plot(p2_y)
+axisPhylo(backward = F)
