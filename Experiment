@@ -1,0 +1,140 @@
+rm(list = ls())
+simulation <- function(ct=2,model = 'bt',beta_r = 0.05,mu_r0 = 0.4,lambda_y0 = 1,gamma_y = 0.01,x_r = 10, x_y = 5){
+  
+  sumt = 0
+  WT = c(0) # waiting time
+  SE = c()  # speciation = 1, extinction = 0
+  BT = c(0) # branching time, sum of waiting times
+  L_vector = c() # vector that shows what kind of event takes place (sp/ex of predators/prey)
+  x_r_vector = c(x_r) # nr. of predators at every wt
+  x_y_vector = c(x_y) # nr. of prey at every wt
+  ind_vector = c()
+  
+  
+  while(sumt < ct){
+    #update parameter
+    if(model == 'bt'){
+      lambda_r = beta_r*(x_y-1)
+      mu_r = mu_r0
+      lambda_y = lambda_y0
+      mu_y = gamma_y*x_r
+    }
+    
+    if (x_y<5){mu_y=0}
+    
+    vector_rates = c(rep(lambda_r,x_r),rep(mu_r,x_r),rep(lambda_y,x_y),rep(mu_y,x_y))
+    s  = sum(vector_rates)
+    wt = rexp(n = 1,rate = s) # waiting time is exponentially distributed
+    BD = rmultinom(1,1,vector_rates/s) # event: birth/death, multinomially distributed
+    L = which(BD == 1)
+    L_vector = append(L_vector, L)
+    
+    # find out where the 1 in rmultinom occurs, so where does the event occur before/on N (speciation) or after (extinction)
+    # speciation of predators (x_r)
+    ind = 0
+    if(L <= x_r){
+      # update tree 
+      x_r= x_r+1
+      SE = append(SE,1)
+      x_r_vector = append(x_r_vector,x_r)
+      x_y_vector = append(x_y_vector,x_y)
+      ind=1
+    }
+    # extinction of predators (x_r)
+    if (x_r< L & L <= (2*x_r) & ind == 0) {
+      
+      x_r = x_r-1          
+      SE = append(SE,0)
+      x_r_vector = append(x_r_vector,x_r)
+      x_y_vector = append(x_y_vector,x_y)
+      ind=2
+    }
+    #speciation of prey (x_y)
+    if ((2*x_r)< L & L <= (2*x_r+x_y) & ind == 0) {
+      x_y= x_y+1
+      SE = append(SE,1)
+      x_r_vector = append(x_r_vector,x_r)
+      x_y_vector = append(x_y_vector,x_y)
+      ind=3
+    }
+    #extinction of prey (x_y)
+    if ((2*x_r+x_y) < L & ind == 0) {
+      x_y = x_y-1          
+      SE = append(SE,0)
+      x_r_vector = append(x_r_vector,x_r)
+      x_y_vector = append(x_y_vector,x_y)
+      ind=4
+    }
+    
+    WT = append(WT, wt)
+    sumt = sum(WT)
+    ind_vector = append(ind_vector, ind)
+    
+    
+    # if the nr. of predators becomes 0, the tree should reboot
+    if (x_r == 0) {
+      break()
+    }
+  }
+  
+  
+  p = list(wt=WT,E=SE)   ### ??? instead of using SE, use ind_vector as eventfunction????
+  return(list(p=p,WT=WT,ind_vector=ind_vector,x_r_vector=x_r_vector,x_y_vector=x_y_vector))
+}
+
+# p2 = p2phylo(p)
+# plot(p2)
+# axisPhylo(backward = F)
+
+# plot(BT,  x_r_vector, col='red',type = 'l')
+# par(new=TRUE)
+# plot(BT, x_y_vector, col='green',type = 'l')
+
+#x_r_vector[i]*x_y_vector[i]*beta + x_r_vector[i]*mu0+x_y_vector[i]*lambda0+x_r_vector[i]*x_y_vector[i]*gamma
+
+
+# Inference
+
+estimation <- function(p,WT,x_y_vector, ind_vector,x_r_vector){
+  
+  p = sum(ind_vector==1)
+  q = sum(ind_vector==2)
+  r = sum(ind_vector==3)
+  s = sum(ind_vector==4)
+  
+  beta_r_hat = p / sum(x_r_vector*x_y_vector*WT)
+  mu_r0_hat = q / sum(x_r_vector*WT)
+  lambda_y0_hat = r / sum(x_y_vector*WT)
+  gamma_y_hat = s / sum(x_r_vector*x_y_vector*WT)
+  return(list(beta_r_hat=beta_r_hat,mu_r0_hat=mu_r0_hat,lambda_y0_hat=lambda_y0_hat,gamma_y_hat=gamma_y_hat))
+}
+
+sim = simulation()
+estimation(p=sim$p,WT = sim$WT,x_y_vector=sim$x_y_vector, ind_vector = sim$ind_vector,x_r_vector = sim$x_r_vector)
+
+
+## Experiment
+
+
+beta_r = 0.5    #dependency parameter of predators
+mu_r0 = 0.4   #constant
+lambda_y0 = 1 #constant
+gamma_y = 0.1 #dependency parameter of prey
+
+n_sim = 100
+
+Est_pars = matrix(nrow=n_sim,ncol=4)
+for(i in 1:n_sim){
+  sim = simulation(beta_r = beta_r, mu_r0 = mu_r0, lambda_y0 = lambda_y0, gamma_y = gamma_y)
+  est = estimation(p=sim$p,WT = sim$WT,x_y_vector=sim$x_y_vector, ind_vector = sim$ind_vector,x_r_vector = sim$x_r_vector)
+  Est_pars[i,1] = est$beta_r_hat
+  Est_pars[i,2] = est$mu_r0_hat
+  Est_pars[i,3] = est$lambda_y0_hat
+  Est_pars[i,4] = est$gamma_y_hat
+}
+
+
+qplot(Est_pars[,1],geom='histogram')
+qplot(Est_pars[,2],geom='histogram')
+qplot(Est_pars[,3],geom='histogram')
+qplot(Est_pars[,4],geom='histogram')
