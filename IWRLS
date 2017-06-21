@@ -1,0 +1,97 @@
+
+# input: sigma=sum(lambda's+mu's), x_r_vector=nr. of predators at times t_i, 
+# x_y_vector=nr. of predators at times t_i, T=times t_i --- (all vectors of length l)
+# ind_vector
+
+
+
+
+iwrls <- function (Sigma, x_r_vector, x_y_vector, BT, ind_vector){
+
+  l = length(BT)
+  W_BT = matrix(0,ncol=l, nrow=l)
+  Z_BT = matrix(0,l,1)
+  X_BT = matrix(0,l, 4)
+  W_TO = matrix(0,ncol=l, nrow=l)
+  Z_TO = matrix(0,l,1)
+  X_TO = matrix(0,l, 4)
+  beta = 0.5    
+  mu0 = 0.05   
+  lambda0 = 1 
+  gamma = 0.05
+  
+  rho = c()
+  pi_vector = c()
+  c_vector = c()
+  i = 1
+  
+ distance = 1
+   while(distance < 100) {
+    beta = beta[1]
+    mu0 = beta[2]
+    lambda0 = beta[3]
+    gamma = beta[4]
+     
+     
+    while (i <= l) {
+      W_BT[i,i] = 1/Sigma[i]^2        
+      Z_BT[i] = Sigma[i]*(2-Sigma[i]*BT[i])
+      X_BT[i,1] = sum(x_r_vector[1:i]*x_y_vector[1:i])  
+      X_BT[i,2] = sum(x_r_vector[1:i]) 
+      X_BT[i,3] = sum(x_y_vector[1:i]) 
+      X_BT[i,4] = sum(x_r_vector[1:i]*x_y_vector[1:i]) 
+      i = i+1
+    }
+
+  i=1
+  while (i <= l) {
+    
+      ind2 = 0
+      if (ind_vector[i]==1) {
+        rho = append(rho,x_y_vector[i]*beta)
+        ind2 = 1
+      }
+      if (ind_vector[i]==2 & ind2 ==0) {
+        rho = append(rho,mu0)
+        ind2 = 2
+      }
+      if (ind_vector[i]==3 & ind2 ==0) {
+        rho = append(rho,lambda0)
+        ind2 = 3
+      }
+      if (ind_vector[i]==4 & ind2 ==0) {
+        rho = append(rho,x_r_vector[i]*gamma)
+        ind2 = 4
+      }
+    
+      pi = rho[i]/Sigma[i]
+      pi_vector =  append(pi_vector,pi)
+      c_vector = append(c_vector,x_y_vector[i]*beta + mu0 + lambda0 + x_r_vector[i]*gamma - rho[i])
+
+      W_TO[i,i] = c_vector[i]*pi_vector[i]^2
+      Z_TO[i] = rho[i] + pi_vector[i]*c_vector[i]^2/(1-pi_vector[i])^3
+      
+      X_TO[i,1] = x_y_vector[i]
+      X_TO[i,2] = 1
+      X_TO[i,3] = 1
+      X_TO[i,4] = x_r_vector[i]
+        
+      i = i+1
+  } 
+  
+  X = rbind(X_BT, X_TO)
+  W = cbind(rbind(W_BT,matrix(0,l,l)),rbind(matrix(0,l,l),W_TO))
+  Z = rbind(Z_BT, Z_TO)
+  
+  
+   beta =  solve( t(X) %*% W %*% X) %*% t(X) %*% W %*% Z               # Singular matrix - unsolvable?
+  
+  
+  #vector_rates = c(rep(lambda_r,x_r),rep(mu_r,x_r),rep(lambda_y,x_y),rep(mu_y,x_y))
+  #s  = sum(vector_rates)
+  #Sigma = append(Sigma, s)
+distance = distance + 1
+}
+}
+
+iwrls(Sigma = Sigma ,x_r_vector = x_r_vector, x_y_vector = x_y_vector, BT = BT)
